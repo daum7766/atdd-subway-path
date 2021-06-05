@@ -12,25 +12,21 @@ import wooteco.subway.line.domain.Section;
 import wooteco.subway.line.dto.LineRequest;
 import wooteco.subway.line.dto.LineResponse;
 import wooteco.subway.line.dto.SectionRequest;
-import wooteco.subway.path.application.PathService;
 import wooteco.subway.station.application.StationService;
 import wooteco.subway.station.domain.Station;
 
 @Service
-@CacheConfig(cacheNames = {"cache::graph"})
+@CacheConfig(cacheNames = {"cache::allSection"})
 public class LineService {
 
     private final LineDao lineDao;
     private final SectionDao sectionDao;
     private final StationService stationService;
-    private final PathService pathService;
 
-    public LineService(LineDao lineDao, SectionDao sectionDao, StationService stationService,
-        PathService pathService) {
+    public LineService(LineDao lineDao, SectionDao sectionDao, StationService stationService) {
         this.lineDao = lineDao;
         this.sectionDao = sectionDao;
         this.stationService = stationService;
-        this.pathService = pathService;
     }
 
     @CacheEvict(allEntries = true)

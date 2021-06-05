@@ -1,10 +1,7 @@
 package wooteco.subway.path.application;
 
 import java.util.List;
-import java.util.Objects;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import wooteco.subway.ApplicationContextProvider;
 import wooteco.subway.line.dao.SectionDao;
 import wooteco.subway.line.domain.Section;
 import wooteco.subway.path.domain.Graph;
@@ -30,20 +27,15 @@ public class PathService {
         Station source = stationDao.findById(pathRequest.getSource());
         Station target = stationDao.findById(pathRequest.getTarget());
 
-        ShortestPath shortestPath = new ShortestPath(getProxy().graph());
+        ShortestPath shortestPath = new ShortestPath(graph());
 
         Path path = shortestPath.findPath(source, target);
 
         return PathResponse.of(path);
     }
 
-    @Cacheable(value = "cache::graph")
     public Graph graph() {
         List<Section> sections = sectionDao.findAll();
         return new Graph(sections);
-    }
-
-    public PathService getProxy() {
-        return Objects.requireNonNull(ApplicationContextProvider.getApplicationContext()).getBean(PathService.class);
     }
 }
