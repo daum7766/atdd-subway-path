@@ -26,7 +26,7 @@ public class MemberRequest {
         this.age = age;
     }
 
-    public MemberRequest(Long id, String email, String password,Integer age) {
+    public MemberRequest(Long id, String email, String password, Integer age) {
         this.id = id;
         this.email = email;
         this.password = password;

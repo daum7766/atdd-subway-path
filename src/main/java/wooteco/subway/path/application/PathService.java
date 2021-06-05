@@ -1,11 +1,15 @@
 package wooteco.subway.path.application;
 
 import java.util.List;
+import java.util.Objects;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import wooteco.subway.ApplicationContextProvider;
 import wooteco.subway.line.dao.SectionDao;
 import wooteco.subway.line.domain.Section;
+import wooteco.subway.path.domain.Graph;
 import wooteco.subway.path.domain.Path;
-import wooteco.subway.path.domain.PathAlgorithms;
+import wooteco.subway.path.domain.ShortestPath;
 import wooteco.subway.path.dto.PathRequest;
 import wooteco.subway.path.dto.PathResponse;
 import wooteco.subway.station.dao.StationDao;
@@ -16,25 +20,30 @@ public class PathService {
 
     private final StationDao stationDao;
     private final SectionDao sectionDao;
-    private final PathAlgorithms pathAlgorithms;
 
-    public PathService(StationDao stationDao, SectionDao sectionDao,
-        PathAlgorithms pathAlgorithms) {
+    public PathService(StationDao stationDao, SectionDao sectionDao) {
         this.stationDao = stationDao;
         this.sectionDao = sectionDao;
-        this.pathAlgorithms = pathAlgorithms;
-    }
-
-    public void resetGraph() {
-        List<Section> sections = sectionDao.findAll();
-        pathAlgorithms.resetGraph(sections);
     }
 
     public PathResponse findPath(PathRequest pathRequest) {
         Station source = stationDao.findById(pathRequest.getSource());
         Station target = stationDao.findById(pathRequest.getTarget());
-        Path path = pathAlgorithms.findPath(source, target);
+
+        ShortestPath shortestPath = new ShortestPath(getProxy().graph());
+
+        Path path = shortestPath.findPath(source, target);
 
         return PathResponse.of(path);
+    }
+
+    @Cacheable(value = "cache::graph")
+    public Graph graph() {
+        List<Section> sections = sectionDao.findAll();
+        return new Graph(sections);
+    }
+
+    public PathService getProxy() {
+        return Objects.requireNonNull(ApplicationContextProvider.getApplicationContext()).getBean(PathService.class);
     }
 }

@@ -2,8 +2,9 @@ package wooteco.subway.line.application;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import wooteco.subway.line.dao.LineDao;
 import wooteco.subway.line.dao.SectionDao;
 import wooteco.subway.line.domain.Line;
@@ -16,6 +17,7 @@ import wooteco.subway.station.application.StationService;
 import wooteco.subway.station.domain.Station;
 
 @Service
+@CacheConfig(cacheNames = {"cache::graph"})
 public class LineService {
 
     private final LineDao lineDao;
@@ -23,17 +25,18 @@ public class LineService {
     private final StationService stationService;
     private final PathService pathService;
 
-    public LineService(LineDao lineDao, SectionDao sectionDao, StationService stationService, PathService pathService) {
+    public LineService(LineDao lineDao, SectionDao sectionDao, StationService stationService,
+        PathService pathService) {
         this.lineDao = lineDao;
         this.sectionDao = sectionDao;
         this.stationService = stationService;
         this.pathService = pathService;
     }
 
+    @CacheEvict(allEntries = true)
     public LineResponse saveLine(LineRequest request) {
         Line persistLine = lineDao.insert(new Line(request.getName(), request.getColor()));
         persistLine.addSection(addInitSection(persistLine, request));
-        pathService.resetGraph();
         return LineResponse.of(persistLine);
     }
 
@@ -75,6 +78,7 @@ public class LineService {
         lineDao.deleteById(id);
     }
 
+    @CacheEvict(allEntries = true)
     public void addLineStation(Long lineId, SectionRequest request) {
         Line line = findLineById(lineId);
         Station upStation = stationService.findStationById(request.getUpStationId());
@@ -83,10 +87,9 @@ public class LineService {
 
         sectionDao.deleteByLineId(lineId);
         sectionDao.insertSections(line);
-
-        pathService.resetGraph();
     }
 
+    @CacheEvict(allEntries = true)
     public void removeLineStation(Long lineId, Long stationId) {
         Line line = findLineById(lineId);
         Station station = stationService.findStationById(stationId);
@@ -94,7 +97,6 @@ public class LineService {
 
         sectionDao.deleteByLineId(lineId);
         sectionDao.insertSections(line);
-        pathService.resetGraph();
     }
 
 }

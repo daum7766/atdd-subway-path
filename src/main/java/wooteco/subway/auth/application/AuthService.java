@@ -1,13 +1,12 @@
 package wooteco.subway.auth.application;
 
+import java.util.Map;
 import org.springframework.stereotype.Service;
 import wooteco.subway.auth.dto.TokenRequest;
 import wooteco.subway.auth.dto.TokenResponse;
 import wooteco.subway.auth.infrastructure.JwtTokenProvider;
 import wooteco.subway.member.application.MemberService;
 import wooteco.subway.member.dto.MemberResponse;
-
-import java.util.Map;
 
 @Service
 public class AuthService {

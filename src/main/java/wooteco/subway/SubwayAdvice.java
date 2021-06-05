@@ -1,14 +1,18 @@
 package wooteco.subway;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import wooteco.subway.auth.exception.UserLoginFailException;
 import wooteco.subway.exceptions.SubWayException;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class SubwayAdvice {
+
+    private static final Logger log = LoggerFactory.getLogger("console");
 
     @ExceptionHandler(UserLoginFailException.class)
     public ResponseEntity<String> handleUserLoginFailException(UserLoginFailException exception) {
@@ -22,9 +26,7 @@ public class SubwayAdvice {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception exception) {
-        System.out.println(exception.getClass());
-        exception.fillInStackTrace();
-        System.out.println(exception.getMessage());
+        log.error(exception.getClass() + " : " + exception.getMessage());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR.value())
             .body("알 수 없는 에러가 발생했습니다.");
     }

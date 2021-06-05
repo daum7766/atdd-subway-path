@@ -1,15 +1,12 @@
 package wooteco.subway.path.domain;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.WeightedMultigraph;
 import wooteco.subway.exceptions.SubWayException;
 import wooteco.subway.exceptions.SubWayExceptionSet;
 import wooteco.subway.line.domain.Section;
 import wooteco.subway.station.domain.Station;
-
-import java.util.List;
 
 public class Graph {
 
@@ -21,17 +18,12 @@ public class Graph {
     }
 
     public void resetGraph(List<Section> sections) {
-        removeAllVertexes();
         for (Section section : sections) {
             graph.addVertex(section.getUpStation());
             graph.addVertex(section.getDownStation());
-            graph.setEdgeWeight(graph.addEdge(section.getUpStation(), section.getDownStation()), section.getDistance());
+            graph.setEdgeWeight(graph.addEdge(section.getUpStation(), section.getDownStation()),
+                section.getDistance());
         }
-    }
-
-    private void removeAllVertexes() {
-        Set<Station> stations = new HashSet<>(graph.vertexSet());
-        graph.removeAllVertices(stations);
     }
 
     public void validateStation(Station station) {
